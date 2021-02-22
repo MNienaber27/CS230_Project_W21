@@ -4,11 +4,11 @@ import subprocess
 
 
 
-KEY_LOC = "-i ./KeyPair3.pem"
+KEY_LOC = "~/Downloads/KeyPair3.pem"
 REMOTE_ADDRESS = "hadoop@ec2-3-235-175-124.compute-1.amazonaws.com"
 
 remote_files = ["None"]
-ssh = subprocess.Popen(['ssh',KEY_LOC,REMOTE_ADDRESS],
+ssh = subprocess.Popen(['ssh','-i',KEY_LOC,REMOTE_ADDRESS],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE,
@@ -40,7 +40,7 @@ def browseFiles():
 #     label_dir_explorer.configure(text="Directory: "+ filename)
 def store() :
     # global copy_file
-    ssh = subprocess.Popen(['scp',KEY_LOC,copy_file,REMOTE_ADDRESS + ':/home/hadoop/'],
+    ssh = subprocess.Popen(['scp','-i',KEY_LOC,copy_file,REMOTE_ADDRESS + ':/home/hadoop/'],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE,
@@ -49,7 +49,7 @@ def store() :
 def retrieve():
     get_file = variable.get()
     path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
-    ssh = subprocess.Popen(['scp',KEY_LOC,path, './'],
+    ssh = subprocess.Popen(['scp','-i',KEY_LOC,path, './'],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE,
