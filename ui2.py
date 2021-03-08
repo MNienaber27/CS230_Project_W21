@@ -1,4 +1,4 @@
-# ui2.py supports multiple files uploading
+# ui2.py supports both file and directory upload/delete/retrieve
 import tkinter as Tk
 from tkinter.filedialog import askopenfilename, askdirectory
 import subprocess
@@ -10,7 +10,7 @@ ssh = subprocess.Popen(['ssh', '-i', KEY_LOC, REMOTE_ADDRESS],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE, 
                      stderr=subprocess.PIPE,
-                     universal_newlines=True,
+                    universal_newlines=True,
                      bufsize=0)
 
 ssh.stdin.write('ls')
@@ -39,12 +39,12 @@ def browseFiles():
 # dir upload
 def browseDir():
     global move_loc
-    filename = askdirectory(initialdir='/', title='Select a directory')
-    move_loc = filename
+    dirname = askdirectory(initialdir='/', title='Select a directory')
+    move_loc = dirname
     label_dir_explorer.configure(text="Directory: " + move_loc)
 
-def storefile() :
-    # global copy_file
+def storefile():
+    # scp -i ~/Downloads/KeyPair3.pem test.txt hadoop@ec2-52-87-191-193.compute-1.amazonaws.com:/home/hadoop/
     ssh = subprocess.Popen(['scp', '-i', KEY_LOC, copy_file, REMOTE_ADDRESS + ':/home/hadoop/'],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE,
@@ -53,8 +53,8 @@ def storefile() :
     stdout, stderr = ssh.communicate()
 
 def storedir():
-    # global move_loc
-    ssh = subprocess.Popen(['scp', '-r', KEY_LOC, move_loc, REMOTE_ADDRESS + ':/home/hadoop/'],
+    # scp -r -i ~/Downloads/KeyPair3.pem tenfile/ hadoop@ec2-52-87-191-193.compute-1.amazonaws.com:/home/hadoop/
+    ssh = subprocess.Popen(['scp', '-r', '-i', KEY_LOC, move_loc, REMOTE_ADDRESS + ':/home/hadoop/'],
                            stdin=subprocess.PIPE,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
@@ -62,29 +62,34 @@ def storedir():
     stdout, stderr = ssh.communicate()
 
 def deletefile():
+    # ssh -i ~/Downloads/KeyPair3.pem hadoop@ec2-52-87-191-193.compute-1.amazonaws.com "rm -f -r ~/test.txt"
     get_file = variable.get()
-    path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
-    ssh = subprocess.Popen(['rm', '-i', KEY_LOC, path, './'],
+    # path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
+    ssh = subprocess.Popen(['ssh', '-i', KEY_LOC, REMOTE_ADDRESS, 'rm -f -r ~/' + get_file],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
                      universal_newlines=True,)
     stdout, stderr = ssh.communicate()
+
 
 def deletedir():
+    # ssh -i ~/Downloads/KeyPair3.pem hadoop@ec2-52-87-191-193.compute-1.amazonaws.com "rm -f -r ~/test"
     get_file = variable.get()
-    path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
-    ssh = subprocess.Popen(['rm', '-r', KEY_LOC, path, './'],
+    # path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
+    ssh = subprocess.Popen(['ssh', '-i', KEY_LOC, REMOTE_ADDRESS, 'rm -f -r ~/' + get_file],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
                      universal_newlines=True,)
     stdout, stderr = ssh.communicate()
 
+
 def retrievefile():
+    # scp -i ~/Downloads/KeyPair3.pem hadoop@ec2-52-87-191-193.compute-1.amazonaws.com:/home/hadoop/test.txt ./
     get_file = variable.get()
     path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
-    ssh = subprocess.Popen(['scp','-i',KEY_LOC,path, './'],
+    ssh = subprocess.Popen(['scp', '-i', KEY_LOC, path, './'],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
@@ -92,9 +97,10 @@ def retrievefile():
     stdout, stderr = ssh.communicate()
 
 def retrievedir():
+    # scp -r -i ~/Downloads/KeyPair3.pem hadoop@ec2-52-87-191-193.compute-1.amazonaws.com:/home/hadoop/test ./
     get_file = variable.get()
     path = REMOTE_ADDRESS + ':/home/hadoop/' + get_file
-    ssh = subprocess.Popen(['scp','-r',KEY_LOC,path, './'],
+    ssh = subprocess.Popen(['scp', '-r', '-i', KEY_LOC, path, './'],
                      stdin =subprocess.PIPE,
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE,
